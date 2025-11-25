@@ -9,7 +9,7 @@
 class BleRadio {
 public:
     void begin(uint16_t selfId);
-    void loop();                        // NimBLEDevice::getScan()->… etc.
+    void loop();
     void getSocialContext(SocialContext &ctx) const;
 };
 

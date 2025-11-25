@@ -20,7 +20,7 @@ struct Sensors {
     float temperature;
     float sound_db;
     bool  was_touched;
-    [7]bool touch_points;
+    bool touch_points[7];
     float light_level;
 };
 
