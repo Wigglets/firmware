@@ -11,6 +11,13 @@ class SensorsDriver {
 public:
     void begin();
     Sensors read();
+
+private:
+    void readLight(Sensors &s);
+    void readSound(Sensors &s);
+    void readTemperature(Sensors &s);
+    void readTouch(Sensors &s);
+    void readAcceleromete(Sensors &s);
 };
 
 

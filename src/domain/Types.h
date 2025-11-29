@@ -22,6 +22,7 @@ struct Sensors {
     bool  was_touched;
     bool touch_points[7];
     float light_level;
+    bool is_shaken;
 };
 
 struct NeighborInfo {
@@ -41,13 +42,22 @@ struct SocialContext {
  *  All values range from -1 to 1.
  */
 struct Personality {
+    // -1 = haat lawaai, +1 = houdt van drukte
     float noise_preference;
+
+    // -1 = vindt aanraking irritant, +1 = knuffelig
     float touch_affinity;
-    float temp_preference;
+
+    // gewenste lichtniveau (zelfde schaal als light_level)
+    float light_preference;
+
+    // 0..1: hoe snel reageert hij negatief op stress
     float irritability;
+
+    // 0..1: hoe sterk arousal reageert op prikkels
     float curiosity;
-    float sociality;
 };
+
 
 struct EmotionState {
     float valence;   // -1..1
@@ -67,7 +77,7 @@ enum class VisualStateID {
 
 struct VisualState {
     VisualStateID id;
-    // evt. parameters: eye_openness, mouth_curve, blink_speed, led_intensity, etc.
+    float eye_openness;
 };
 
 
