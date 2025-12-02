@@ -5,10 +5,6 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-//
-// Created by ub on 11/21/25.
-//
-
 #ifndef CORE_TYPES_H
 #define CORE_TYPES_H
 
@@ -42,26 +38,17 @@ struct SocialContext {
  *  All values range from -1 to 1.
  */
 struct Personality {
-    // -1 = haat lawaai, +1 = houdt van drukte
     float noise_preference;
-
-    // -1 = vindt aanraking irritant, +1 = knuffelig
     float touch_affinity;
-
-    // gewenste lichtniveau (zelfde schaal als light_level)
     float light_preference;
-
-    // 0..1: hoe snel reageert hij negatief op stress
     float irritability;
-
-    // 0..1: hoe sterk arousal reageert op prikkels
     float curiosity;
 };
 
 
 struct EmotionState {
-    float valence;   // -1..1
-    float arousal;   // 0..1
+    float valence;
+    float arousal;
 };
 
 

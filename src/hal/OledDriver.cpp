@@ -1,10 +1,7 @@
-//
-// OledDriver.cpp
-//
-
 #include "hal/OledDriver.h"
 
-// Deze wordt ergens anders geïmplementeerd (je gebruikt hem al in SensorDriver)
+#include "config.h"
+
 void SwitchBus(uint8_t bus);
 
 OledDriver::OledDriver()
@@ -14,10 +11,6 @@ OledDriver::OledDriver()
 }
 
 bool OledDriver::begin() {
-    // Als je Wire al ergens anders initialiseert kun je dit weghalen of aanpassen
-    Wire.begin(21, 22);  // pas aan naar jouw SDA/SCL indien nodig
-
-    // LEFT eye
     SwitchBus(OLED_BUS_LEFT);
     if (!_left.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
         Serial.println(F("Left OLED init failed"));
@@ -86,27 +79,13 @@ void OledDriver::drawEye(Adafruit_SSD1306& d, const VisualState& vs, bool isLeft
             d.drawLine(cx + 5, cy + 3, cx + 8, cy, SSD1306_WHITE);
             break;
     }
-
-    // oog-openheid (masker boven/onder)
-    float op = vs.eye_openness;
-    if (op < 1.0f) {
-        op = constrain(op, 0.0f, 1.0f);
-        int cover = (int)((1.0f - op) * eyeRadius);
-        if (cover > 0) {
-            d.fillRect(0, 0, SCREEN_WIDTH, cover, SSD1306_BLACK);
-            d.fillRect(0, SCREEN_HEIGHT - cover, SCREEN_WIDTH, cover, SSD1306_BLACK);
-        }
-    }
-
     d.display();
 }
 
 void OledDriver::render(const VisualState& vs) {
-    // linker oog
     SwitchBus(OLED_BUS_LEFT);
     drawEye(_left, vs, true);
 
-    // rechter oog
     SwitchBus(OLED_BUS_RIGHT);
     drawEye(_right, vs, false);
 }

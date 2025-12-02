@@ -8,24 +8,19 @@
 
 #include "Adafruit_CAP1188.h"
 #include "Adafruit_VEML7700.h"
+#include "config.h"
 #include "SparkFunLSM6DS3.h"
 #include "HalUtils.h"
 
-#define CAPACITIVE_BUS 4
-#define IMU_BUS 5
-#define TEMPERATURE_BUS 5
-#define LIGHT_BUS 6
-
-const int MIC_PIN = 0;          // GPIO0 (ADC1_CH0)
-const int N_SAMPLES = 400;      // more samples = smoother, slower
-const float REF_RMS = 10.0f;    // reference RMS (tune this after seeing values)
+const int N_SAMPLES = 400;
+const float REF_RMS = 10.0f;
 
 Adafruit_CAP1188 cap = Adafruit_CAP1188();
 LSM6DS3 imu(I2C_MODE, 0x6B);
 Adafruit_VEML7700 veml = Adafruit_VEML7700();
 
 
-const int sampleWindow = 50; // Meetperiode in ms
+const int sampleWindow = 50;
 unsigned int sample;
 
 
@@ -47,7 +42,7 @@ void SensorsDriver::begin() {
         Serial.println("VEML7700 not found");
     }
 
-    analogReadResolution(12); // Zorg voor 0-4095 bereik
+    analogReadResolution(12);
     analogSetAttenuation(ADC_11db);
 }
 
@@ -71,7 +66,6 @@ void SensorsDriver::readTouch(Sensors &s) {
     }
 }
 
-
 void SensorsDriver::readLight(Sensors &s) {
     SwitchBus(LIGHT_BUS);
     s.light_level = veml.readLux(VEML_LUX_NORMAL_NOWAIT);
@@ -81,7 +75,7 @@ void SensorsDriver::readSound(Sensors &s) {
     long sum = 0;
     long sumSq = 0;
     for (int i = 0; i < N_SAMPLES; i++) {
-        int v = analogRead(MIC_PIN);
+        int v = analogRead(MICROPHONE_PIN);
         sum += v;
         sumSq += (long)v * (long)v;
         delayMicroseconds(200);

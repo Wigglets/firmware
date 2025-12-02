@@ -5,7 +5,6 @@
 #include "hal/OledDriver.h"
 #include "hal/LigthsDriver.h"
 
-
 SensorsDriver sensors_driver;
 OledDriver    oled;
 LightsDriver  lights;

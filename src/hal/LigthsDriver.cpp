@@ -1,6 +1,8 @@
 // hal/LightsDriver.cpp
 #include "hal/LigthsDriver.h"
 
+#include "config.h"
+
 LightsDriver::LightsDriver()
     : _strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800)
 {
@@ -21,7 +23,6 @@ void LightsDriver::setAll(uint8_t r, uint8_t g, uint8_t b) {
 }
 
 void LightsDriver::render(const EmotionState& e, const VisualState& vs) {
-    // base color from visual state
     uint8_t r = 0, g = 0, b = 0;
 
     switch (vs.id) {
@@ -52,11 +53,9 @@ void LightsDriver::render(const EmotionState& e, const VisualState& vs) {
             break;
     }
 
-    // brightness from arousal: low arousal = dim, high = bright
     float a = constrain(e.arousal, 0.0f, 1.0f);
     uint8_t brightness = (uint8_t)map((int)(a * 100.0f), 0, 100, 30, 255);
 
-    // scale RGB by brightness
     uint16_t r2 = (r * brightness) / 255;
     uint16_t g2 = (g * brightness) / 255;
     uint16_t b2 = (b * brightness) / 255;
