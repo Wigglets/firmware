@@ -9,7 +9,7 @@
 
 class SensorsDriver {
 public:
-    void begin();
+    void begin() const;
     Sensors read();
 
 private:

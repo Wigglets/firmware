@@ -45,17 +45,18 @@ struct Personality {
     float curiosity;
 };
 
-
 struct EmotionState {
-    float valence;
+    float pleasure;
     float arousal;
+    float dominance;
 };
 
 
 // TODO eventually remove this and replace with algorithm that generates visual representation based on personality and emotionstate. Instead of fixed emotions.
 enum class VisualStateID {
     Neutral,
-    RelaxedHappy,
+    Relaxed,
+    Happy,
     Excited,
     Sad,
     Angry,
@@ -64,7 +65,6 @@ enum class VisualStateID {
 
 struct VisualState {
     VisualStateID id;
-    float eye_openness;
 };
 
 

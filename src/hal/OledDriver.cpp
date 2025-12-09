@@ -39,44 +39,36 @@ void OledDriver::drawEye(Adafruit_SSD1306& d, const VisualState& vs, bool isLeft
     const int eyeRadius   = 24;
     const int pupilRadius = 8;
 
+    d.setTextSize(2);          // Normal 1:1 pixel font scale
+    d.setTextColor(SSD1306_WHITE); // White text on black background
+    d.setCursor(0,0);
+
     switch (vs.id) {
         case VisualStateID::Neutral:
-            d.fillCircle(cx, cy, eyeRadius, SSD1306_WHITE);
-            d.fillCircle(cx, cy, pupilRadius, SSD1306_BLACK);
+
+            d.println("Neutral");
+
             break;
 
         case VisualStateID::RelaxedHappy:
-            d.fillCircle(cx, cy, eyeRadius, SSD1306_WHITE);
-            d.fillCircle(cx, cy - 3, pupilRadius, SSD1306_BLACK);
-            d.drawLine(cx - 9, cy - 7, cx + 9, cy - 9, SSD1306_WHITE);
+            d.println("RelaxedHappy");
+
             break;
 
         case VisualStateID::Excited:
-            d.drawCircle(cx, cy, eyeRadius, SSD1306_WHITE);
-            d.drawCircle(cx, cy, eyeRadius - 1, SSD1306_WHITE);
-            d.fillCircle(cx, cy, pupilRadius - 1, SSD1306_WHITE);
+            d.println("Excited");
             break;
 
         case VisualStateID::Sad:
-            d.fillCircle(cx, cy, eyeRadius, SSD1306_WHITE);
-            d.fillCircle(cx, cy + 3, pupilRadius, SSD1306_BLACK);
-            d.drawLine(cx - 9, cy - 9, cx + 9, cy - 7, SSD1306_WHITE);
+            d.println("Sad");
             break;
 
         case VisualStateID::Angry:
-            d.fillCircle(cx, cy, eyeRadius, SSD1306_WHITE);
-            d.fillCircle(cx, cy - 2, pupilRadius, SSD1306_BLACK);
-            if (isLeft) {
-                d.drawLine(cx - 12, cy - 10, cx + 8, cy - 4, SSD1306_WHITE);
-            } else {
-                d.drawLine(cx + 12, cy - 10, cx - 8, cy - 4, SSD1306_WHITE);
-            }
+            d.println("Angry");
             break;
 
         case VisualStateID::Sleeping:
-            d.drawLine(cx - 10, cy, cx + 10, cy, SSD1306_WHITE);
-            d.drawLine(cx - 8, cy, cx - 5, cy + 3, SSD1306_WHITE);
-            d.drawLine(cx + 5, cy + 3, cx + 8, cy, SSD1306_WHITE);
+            d.println("Sleeping");
             break;
     }
     d.display();

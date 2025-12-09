@@ -24,7 +24,7 @@ const int sampleWindow = 50;
 unsigned int sample;
 
 
-void SensorsDriver::begin() {
+void SensorsDriver::begin() const {
     Wire.begin();
 
     SwitchBus(4);
@@ -57,6 +57,10 @@ Sensors SensorsDriver::read() {
     return s;
 }
 
+/**
+ *
+ * @param s
+ */
 void SensorsDriver::readTouch(Sensors &s) {
     SwitchBus(CAPACITIVE_BUS);
     uint8_t touched = cap.touched();
