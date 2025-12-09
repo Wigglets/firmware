@@ -123,7 +123,7 @@ VisualStateID EmotionEngine::mapEmotionToVisual() const {
 
     if (p > 0.2f) {
         if (a > 0.2f) return VisualStateID::Excited;
-        return VisualStateID::RelaxedHappy;
+        return VisualStateID::Relaxed;
     }
 
     if (p < -0.2f) {

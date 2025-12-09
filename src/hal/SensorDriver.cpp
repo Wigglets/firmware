@@ -23,6 +23,9 @@ Adafruit_VEML7700 veml = Adafruit_VEML7700();
 const int sampleWindow = 50;
 unsigned int sample;
 
+const int thresholdSilence = 20;  // Below this is Silence
+const int thresholdLoud = 400;
+
 
 void SensorsDriver::begin() const {
     Wire.begin();
@@ -42,8 +45,6 @@ void SensorsDriver::begin() const {
         Serial.println("VEML7700 not found");
     }
 
-    analogReadResolution(12);
-    analogSetAttenuation(ADC_11db);
 }
 
 Sensors SensorsDriver::read() {
@@ -76,30 +77,48 @@ void SensorsDriver::readLight(Sensors &s) {
 }
 
 void SensorsDriver::readSound(Sensors &s) {
-    long sum = 0;
-    long sumSq = 0;
-    for (int i = 0; i < N_SAMPLES; i++) {
-        int v = analogRead(MICROPHONE_PIN);
-        sum += v;
-        sumSq += (long)v * (long)v;
-        delayMicroseconds(200);
+    unsigned long startMillis = millis();
+    unsigned int peakToPeak = 0;
+
+    unsigned int signalMax = 0;
+    unsigned int signalMin = 1024;
+
+    // 1. Gather data for 50ms
+    while (millis() - startMillis < sampleWindow) {
+        sample = analogRead(A0);
+
+        if (sample < 1024) {
+            if (sample > signalMax) {
+                signalMax = sample;
+            }
+            if (sample < signalMin) {
+                signalMin = sample;
+            }
+        }
     }
 
-    float mean = (float)sum / N_SAMPLES;
-    float meanSq = (float)sumSq / N_SAMPLES;
-    float variance = meanSq - mean * mean;
-    if (variance < 0) variance = 0;
-
-    float rms = sqrtf(variance);
-
-    float dB;
-    if (rms <= 0.0f) {
-        dB = -80.0f;
+    // --- SAFETY CHECK (The Fix) ---
+    // Only calculate if we actually found a valid Max and Min
+    if (signalMax > signalMin) {
+        peakToPeak = signalMax - signalMin;
     } else {
-        dB = 20.0f * log10f(rms / REF_RMS);
+        peakToPeak = 0; // If math fails, assume silence
     }
 
-    s.sound_db = dB;
+    // 3. Categorize the Sound
+    Serial.print("Raw Value: ");
+    Serial.print(peakToPeak);
+    Serial.print(" | Status: ");
+
+    if (peakToPeak <= thresholdSilence) {
+        Serial.println("SILENCE");
+    }
+    else if (peakToPeak >= thresholdLoud) {
+        Serial.println("LOUD!!");
+    }
+    else {
+        Serial.println("Normal");
+    }
 }
 
 void SensorsDriver::readTemperature(Sensors &s) {
@@ -114,6 +133,8 @@ void SensorsDriver::readAcceleromete(Sensors &s) {
     float az = imu.readFloatAccelZ();
 
     float total_force = sqrt(ax*ax + ay*ay + az*az);
+
+
 
     if (total_force > 2.5) {
         s.is_shaken = true;

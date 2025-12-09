@@ -26,10 +26,16 @@ void LightsDriver::render(const EmotionState& e, const VisualState& vs) {
     uint8_t r = 0, g = 0, b = 0;
 
     switch (vs.id) {
-        case VisualStateID::RelaxedHappy:
+        case VisualStateID::Relaxed:
             // warm yellow
             r = 255; g = 180; b = 40;
             break;
+
+        case VisualStateID::Happy:
+
+            r = 0; g = 255; b = 0;
+            break;
+
         case VisualStateID::Excited:
             // bright magenta
             r = 255; g = 0;   b = 150;

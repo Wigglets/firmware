@@ -50,7 +50,12 @@ void OledDriver::drawEye(Adafruit_SSD1306& d, const VisualState& vs, bool isLeft
 
             break;
 
-        case VisualStateID::RelaxedHappy:
+        case VisualStateID::Relaxed:
+            d.println("RelaxedHappy");
+
+            break;
+
+        case VisualStateID::Happy:
             d.println("RelaxedHappy");
 
             break;
