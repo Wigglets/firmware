@@ -6,6 +6,7 @@
 #define EMOTIONENGINE_H
 
 #include "domain/Types.h"
+#include <Arduino.h>
 
 class EmotionEngine {
 public:

@@ -79,6 +79,37 @@ void OledDriver::drawEye(Adafruit_SSD1306& d, const VisualState& vs, bool isLeft
     d.display();
 }
 
+void OledDriver::renderDebug(const Sensors& sd, const VisualState &vs, const EmotionState &es) {
+
+    Adafruit_SSD1306& d = _right;
+    // Render debug info on oled
+    SwitchBus(OLED_BUS_RIGHT);
+    d.setTextColor(SSD1306_WHITE); // White text on black background
+
+    d.clearDisplay();
+    d.setCursor(0, 0);
+    d.setTextSize(1);
+    d.print("P:"); d.print(es.pleasure);
+    d.print(" A:"); d.print(es.arousal);
+    d.print(" D:"); d.println(es.dominance);
+
+    d.print("Temp:"); d.println(sd.temperature);
+    d.print("Light:"); d.println(sd.light_level);
+
+    d.print("AX:"); d.print(sd.orientation.accelX);
+    d.print("AY:"); d.print(sd.orientation.accelY);
+    d.print("AZ:"); d.println(sd.orientation.accelZ);
+    d.print("GX:"); d.print(sd.orientation.gyroX);
+    d.print("GY:"); d.print(sd.orientation.gyroY);
+    d.print("GZ:"); d.println(sd.orientation.gyroZ);
+
+    d.display();
+
+    SwitchBus(OLED_BUS_LEFT);
+    drawEye(_left, vs, true);
+}
+
+
 void OledDriver::render(const VisualState& vs) {
     SwitchBus(OLED_BUS_LEFT);
     drawEye(_left, vs, true);

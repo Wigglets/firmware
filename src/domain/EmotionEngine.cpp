@@ -55,10 +55,27 @@ void EmotionEngine::processSensors(const Sensors& sensors) {
         }
     }
 
-    // Shake
-    if (sensors.is_shaken) {
-        float base_stress = 0.1f;
 
+    // Shake
+
+
+// --- 2. Motion Logic (Accel + Gyro) ---
+    float accelX = sensors.orientation.accelX;
+    float accelY = sensors.orientation.accelY;
+    float accelZ = sensors.orientation.accelZ;
+
+    // Calculate Total Force (Gravity = approx 1.0)
+    float total_force = sqrt(accelX*accelX + accelY*accelY + accelZ*accelZ);
+
+    // Calculate Rotation Speed (Gyro)
+    float gyroX = sensors.orientation.gyroX;
+    float gyroY = sensors.orientation.gyroY;
+    float gyroZ = sensors.orientation.gyroZ;
+    float rotation_speed = sqrt(gyroX*gyroX + gyroY*gyroY + gyroZ*gyroZ);
+
+    // -> SHAKE Detection (High Force)
+    if (total_force > 2.5f) {
+        float base_stress = 0.1f;
         float multiplier = 1.0f + _personality.irritability;
         if (multiplier < 0.2f) multiplier = 0.2f;
 
@@ -66,9 +83,46 @@ void EmotionEngine::processSensors(const Sensors& sensors) {
         _currentEmotion.pleasure  -= (0.05f * multiplier);
         _currentEmotion.dominance += (0.05f * multiplier);
     }
+    // -> FREE FALL Detection (Zero Gravity)
+    // If force is near 0, the robot is falling. Triggers Fear.
+    else if (total_force < 0.2f) {
+        _currentEmotion.arousal += 0.2f;  // Panic
+        _currentEmotion.pleasure -= 0.1f; // Fear
+        _currentEmotion.dominance -= 0.1f; // Helplessness
+    }
+    // -> GENTLE ROCKING Detection (Soothing)
+    // Force is stable (near 1G) BUT there is rotation (being cradled/rocked)
+    else if ((total_force > 0.8f && total_force < 1.2f) && (rotation_speed > 15.0f)) {
+        // Note: gyro values are often in dps (degrees per second).
+        // > 15.0f ensures intentional movement, not just noise.
+
+        _currentEmotion.arousal -= 0.02f;  // Calming
+        _currentEmotion.pleasure += 0.01f; // Comfort
+        _currentEmotion.dominance += 0.005f; // Feeling Safe
+    }
+
+    // -> INVERSION Detection (Upside Down)
+    // Assuming Y-axis is vertical. If Y is < -0.8, it's upside down.
+    if (accelY < -0.8f) {
+        if (_personality.curiosity > 0.0f) {
+            _currentEmotion.pleasure += 0.005f; // Finds it funny
+        } else {
+            _currentEmotion.pleasure -= 0.01f; // Finds it annoying
+            _currentEmotion.arousal += 0.005f;
+        }
+    }
+
+
+    if (sensors.noise_level <= 20) {
+        Serial.println("SILENCE");
+    } else if (sensors.noise_level >= 400) {
+        Serial.println("LOUD!!");
+    } else {
+        Serial.println("Normal");
+    }
 
     // Sound
-    if (sensors.sound_db > 55.0f) {
+    if (sensors.noise_level >= 55.0f) {
         _currentEmotion.arousal += 0.05f;
 
         if (_personality.noise_preference > 0.2f) {

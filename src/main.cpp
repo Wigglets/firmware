@@ -58,7 +58,7 @@ void loop() {
         Serial.println();
 
         // 4. Render output
-        oled.render(vs);
+        oled.renderDebug(s, vs, es);
         lights.render(es, vs); // LightsDriver gebruikt al arousal voor brightness
 
         lastUpdate = now;

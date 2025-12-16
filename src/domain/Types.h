@@ -8,17 +8,32 @@
 #ifndef CORE_TYPES_H
 #define CORE_TYPES_H
 
-// core_types.h
-#pragma once
-#include <stdint.h>
+#include <Arduino.h>
+
+
+// MAX9814 is not able to measure db accurate. So use sound levels
+enum class NoiseLevel {
+    Silent,
+    Normal,
+    Loud
+};
+
+struct Orientation {
+    float accelX;
+    float accelY;
+    float accelZ;
+    float gyroX;
+    float gyroY;
+    float gyroZ;
+};
 
 struct Sensors {
     float temperature;
-    float sound_db;
     bool  was_touched;
     bool touch_points[7];
     float light_level;
-    bool is_shaken;
+    float noise_level;
+    Orientation orientation;
 };
 
 struct NeighborInfo {
@@ -50,6 +65,7 @@ struct EmotionState {
     float arousal;
     float dominance;
 };
+
 
 
 // TODO eventually remove this and replace with algorithm that generates visual representation based on personality and emotionstate. Instead of fixed emotions.

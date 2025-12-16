@@ -83,7 +83,6 @@ void SensorsDriver::readSound(Sensors &s) {
     unsigned int signalMax = 0;
     unsigned int signalMin = 1024;
 
-    // 1. Gather data for 50ms
     while (millis() - startMillis < sampleWindow) {
         sample = analogRead(A0);
 
@@ -97,28 +96,14 @@ void SensorsDriver::readSound(Sensors &s) {
         }
     }
 
-    // --- SAFETY CHECK (The Fix) ---
-    // Only calculate if we actually found a valid Max and Min
     if (signalMax > signalMin) {
         peakToPeak = signalMax - signalMin;
     } else {
-        peakToPeak = 0; // If math fails, assume silence
+        peakToPeak = 0;
+
     }
 
-    // 3. Categorize the Sound
-    Serial.print("Raw Value: ");
-    Serial.print(peakToPeak);
-    Serial.print(" | Status: ");
-
-    if (peakToPeak <= thresholdSilence) {
-        Serial.println("SILENCE");
-    }
-    else if (peakToPeak >= thresholdLoud) {
-        Serial.println("LOUD!!");
-    }
-    else {
-        Serial.println("Normal");
-    }
+    s.noise_level = peakToPeak;
 }
 
 void SensorsDriver::readTemperature(Sensors &s) {
@@ -128,19 +113,18 @@ void SensorsDriver::readTemperature(Sensors &s) {
 
 void SensorsDriver::readAcceleromete(Sensors &s) {
     SwitchBus(IMU_BUS);
-    float ax = imu.readFloatAccelX();
-    float ay = imu.readFloatAccelY();
-    float az = imu.readFloatAccelZ();
 
-    float total_force = sqrt(ax*ax + ay*ay + az*az);
+    Orientation o{};
 
+    o.accelX = imu.readFloatAccelX();
+    o.accelY = imu.readFloatAccelY();
+    o.accelZ = imu.readFloatAccelZ();
 
+    o.gyroX = imu.readFloatGyroX();
+    o.gyroY = imu.readFloatGyroY();
+    o.gyroZ = imu.readFloatGyroZ();
 
-    if (total_force > 2.5) {
-        s.is_shaken = true;
-    } else {
-        s.is_shaken = false;
-    }
+    s.orientation = o;
 }
 
 
