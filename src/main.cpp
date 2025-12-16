@@ -1,14 +1,17 @@
 #include <Arduino.h>
 
 #include "domain/EmotionEngine.h"
+#include "hal/BleRadio.h"
 #include "hal/SensorDriver.h"
 #include "hal/OledDriver.h"
 #include "hal/LigthsDriver.h"
 
 SensorsDriver sensors_driver;
+BleRadio ble_radio;
 OledDriver    oled;
 LightsDriver  lights;
 EmotionEngine emotionEngine;
+SocialContext socialContext;
 
 uint32_t lastUpdate = 0;
 
@@ -27,12 +30,13 @@ void setup() {
         while (true) { delay(1000); }
     }
 
+    ble_radio.begin(0x1234);
     Serial.println("Creature started");
     lastUpdate = millis();
 
     Personality grumpy;
     grumpy.noise_preference = -0.8f;  // Haat geluid
-    grumpy.touch_affinity   = -0.5f;  // Wil niet aangeraakt worden (wordt boos)
+    grumpy.touch_affinity   = 0.5f;  // Wil niet aangeraakt worden (wordt boos)
     grumpy.light_preference = -0.6f;  // Houdt van donker
     grumpy.irritability     =  0.9f;  // Heel snel geïrriteerd (hoge arousal bij stress)
     grumpy.curiosity        = -0.2f;  // Behoudend
@@ -55,17 +59,16 @@ void loop() {
         VisualState vs = emotionEngine.getVisualState();
         EmotionState es = emotionEngine.getEmotionState();
 
-        Serial.println();
-
         // 4. Render output
-        oled.renderDebug(s, vs, es);
+        oled.render(vs);
         lights.render(es, vs); // LightsDriver gebruikt al arousal voor brightness
 
         lastUpdate = now;
 
-        Serial.print("P:"); Serial.print(es.pleasure);
-        Serial.print(" A:"); Serial.print(es.arousal);
-        Serial.print(" D:"); Serial.print(es.dominance);
-        Serial.println();
+        // Serial.print("P:"); Serial.print(es.pleasure);
+        // Serial.print(" A:"); Serial.print(es.arousal);
+        // Serial.print(" D:"); Serial.print(es.dominance);
+        // Serial.println();
     }
+    ble_radio.getSocialContext(socialContext);
 }

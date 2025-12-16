@@ -12,42 +12,81 @@
 #include "BleRadio.h"
 
 #include "config.h"
+
+
+
 BLEScan* pBLEScan;
+BLEScanResults foundDevices;
+
+unsigned long lastScan;
+
+NeighborInfo neighbors[10];
+
+
 int scanTime = 1;
-class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
-    void onResult(BLEAdvertisedDevice advertisedDevice) {
-        if (advertisedDevice.getName() == BLE_DEVICE_NAME) {
-            int rssi = advertisedDevice.getRSSI();
-            String macAddress = advertisedDevice.getAddress().toString().c_str();
+int scanInterval = 5000;
+
+static void onScanComplete(BLEScanResults results) {
+
+    int neighbourIndex = 0;
+    for (int i = 0; i < results.getCount(); i++) {
+        BLEAdvertisedDevice device = results.getDevice(i);
+        if (device.getName() == BLE_DEVICE_NAME) {
+            neighbors[neighbourIndex].id = String(device.getAddress().toString().c_str());
+            neighbors[neighbourIndex].avg_rssi = device.getRSSI();
+            neighbors[neighbourIndex].last_seen_ms = millis();
+
+            neighbourIndex++;
+
+            Serial.print("Found device "); Serial.print(i); Serial.print(": "); Serial.println(device.getAddress().toString().c_str());
+            Serial.println("RSSI: "); Serial.println(device.getRSSI());
         }
     }
-};
+
+    pBLEScan->clearResults();
+    pBLEScan->start(1, onScanComplete, false);
+    lastScan = millis();
+}
 
 void BleRadio::begin(uint16_t selfId) {
     BLEDevice::init(BLE_DEVICE_NAME);
 
-  // Advertising
-  BLEServer *pServer = BLEDevice::createServer();
-  BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
-  pAdvertising->addServiceUUID(BLEUUID(selfId));
-  pAdvertising->setScanResponse(true);
-  pAdvertising->setMinPreferred(0x06);
-  pAdvertising->setMinPreferred(0x12);
-  BLEDevice::startAdvertising();
+      // Advertising
+      BLEServer *pServer = BLEDevice::createServer();
+      BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
+      pAdvertising->addServiceUUID(BLEUUID(selfId));
+      pAdvertising->setScanResponse(true);
+      pAdvertising->setMinPreferred(0x06);
+      pAdvertising->setMinPreferred(0x12);
+      BLEDevice::startAdvertising();
 
-  // Scanning
-  pBLEScan = BLEDevice::getScan();
-  pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
-  pBLEScan->setActiveScan(true); // Actief scannen vindt apparaten sneller
-  pBLEScan->setInterval(100);
-  pBLEScan->setWindow(99);
+      // Scanning
+      pBLEScan = BLEDevice::getScan();
+      pBLEScan->setActiveScan(true);
+      pBLEScan->setInterval(100);
+      pBLEScan->setWindow(99);
+
+      pBLEScan->start(1, onScanComplete, false);
 }
 
 void BleRadio::loop() {
-    BLEScanResults foundDevices = pBLEScan->start(scanTime, false);
-    pBLEScan->clearResults();
-    BLEDevice::startAdvertising();
+
 }
 
 void BleRadio::getSocialContext(SocialContext &ctx) const {
+    int totalNeighbors = 0;
+    int closeNeighbors = 0;
+
+    for (const auto neighbor : neighbors) {
+        if (neighbor.avg_rssi < 0) {
+            totalNeighbors++;
+        }
+
+        if (neighbor.avg_rssi > -50 && neighbor.avg_rssi < 0) {
+            closeNeighbors++;
+        }
+    }
+
+    ctx.total_neighbors = totalNeighbors;
+    ctx.close_neighbors = closeNeighbors;
 }

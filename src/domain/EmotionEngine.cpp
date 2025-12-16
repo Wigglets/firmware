@@ -56,9 +56,6 @@ void EmotionEngine::processSensors(const Sensors& sensors) {
     }
 
 
-    // Shake
-
-
 // --- 2. Motion Logic (Accel + Gyro) ---
     float accelX = sensors.orientation.accelX;
     float accelY = sensors.orientation.accelY;
@@ -114,11 +111,11 @@ void EmotionEngine::processSensors(const Sensors& sensors) {
 
 
     if (sensors.noise_level <= 20) {
-        Serial.println("SILENCE");
+        // Serial.println("SILENCE");
     } else if (sensors.noise_level >= 400) {
-        Serial.println("LOUD!!");
+        // Serial.println("LOUD!!");
     } else {
-        Serial.println("Normal");
+        // Serial.println("Normal");
     }
 
     // Sound

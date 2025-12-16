@@ -9,14 +9,7 @@
 #define CORE_TYPES_H
 
 #include <Arduino.h>
-
-
-// MAX9814 is not able to measure db accurate. So use sound levels
-enum class NoiseLevel {
-    Silent,
-    Normal,
-    Loud
-};
+#include <BLEAdvertisedDevice.h>
 
 struct Orientation {
     float accelX;
@@ -37,7 +30,7 @@ struct Sensors {
 };
 
 struct NeighborInfo {
-    uint32_t id;
+    String id;
     float avg_rssi;
     uint32_t last_seen_ms;
 };
@@ -58,6 +51,7 @@ struct Personality {
     float light_preference;
     float irritability;
     float curiosity;
+    float social_cohesion;
 };
 
 struct EmotionState {
